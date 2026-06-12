@@ -1,0 +1,177 @@
+# 📰 News Portal API
+
+REST API for a news portal built with Spring Boot 3 + MySQL.
+
+---
+
+## 🚀 Tech Stack
+
+- Java 21
+- Spring Boot 4.0.6
+- Spring Data JPA / Hibernate
+- MySQL
+- Lombok
+
+---
+
+## ⚙️ Setup
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/ibragimefendiyev/news-api.git
+cd news-api
+```
+
+### 2. Create `.env` file in the root
+```env
+DB_URL=jdbc:mysql://localhost:3306/news_portal?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+### 3. Run
+```bash
+./mvnw spring-boot:run
+```
+
+Server starts at `http://localhost:8080`
+
+---
+
+## 📡 API Endpoints
+
+All responses follow this standard format:
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": { }
+}
+```
+
+---
+
+### 🏠 Home Page
+
+#### `GET /api/news/featured`
+Hero section — latest featured article with full details.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "id": 1,
+    "title": "World Leaders Gather in Geneva",
+    "shortDescription": "...",
+    "imageUrl": "https://...",
+    "createdAt": "2025-06-07T13:00:00",
+    "readTimeMinutes": 6,
+    "isTrending": true,
+    "category": { "id": 1, "name": "Politics", "slug": "politics", "badgeColor": "#e63946" },
+    "author": { "id": 1, "name": "Lucy Hiddleston" },
+    "stats": { "likesCount": 312, "sharesCount": 184, "bookmarksCount": 97 }
+  }
+}
+```
+
+---
+
+#### `GET /api/news/breaking`
+Breaking news ticker — returns array of `id` and `title` only.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": [
+    { "id": 3, "title": "Breaking: Senate Passes New Bill" },
+    { "id": 7, "title": "Markets Hit Record High" }
+  ]
+}
+```
+
+---
+
+#### `GET /api/news/articles?tab={tab}&page={page}&limit={limit}`
+Latest Stories section with tab filtering and pagination.
+
+| Param | Default | Options |
+|-------|---------|---------|
+| `tab` | `latest` | `latest`, `think`, `health` |
+| `page` | `1` | any number |
+| `limit` | `4` | any number |
+
+**Examples:**
+```
+GET /api/news/articles
+GET /api/news/articles?tab=think
+GET /api/news/articles?tab=health
+GET /api/news/articles?page=2&limit=4
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "articles": [...],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 5,
+      "totalItems": 20,
+      "limit": 4
+    }
+  }
+}
+```
+
+---
+
+#### `GET /api/news/live`
+Live section — single live article.
+
+---
+
+#### `GET /api/news/editors-picks`
+Editor's Picks slider — array of articles.
+
+---
+
+### 📄 Detail Page
+
+#### `GET /api/news/:id`
+Full article detail.
+
+| Status | Case |
+|--------|------|
+| `200` | Article found |
+| `400` | ID is not a number (e.g. `/api/news/abc`) |
+| `404` | Article not found (e.g. `/api/news/999`) |
+
+**Error response:**
+```json
+{
+  "success": false,
+  "message": "Article not found with id: 999",
+  "data": null
+}
+```
+
+---
+
+#### `GET /api/news/:id/related`
+Related articles from the same category (excludes current article). Returns max 5 articles.
+
+---
+
+## ❌ Error Codes
+
+| Code | Meaning |
+|------|---------|
+| `400` | Bad request — invalid parameters |
+| `404` | Resource not found |
+| `500` | Internal server error |
